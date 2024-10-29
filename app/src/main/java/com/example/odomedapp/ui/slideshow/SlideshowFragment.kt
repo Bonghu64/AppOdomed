@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.odomedapp.DatabaseHelper
+import com.example.odomedapp.R
 import com.example.odomedapp.databinding.FragmentSlideshowBinding
 
 class SlideshowFragment : Fragment() {
@@ -32,6 +34,15 @@ class SlideshowFragment : Fragment() {
         slideshowViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
+
+        val dbHelper = DatabaseHelper(requireContext()) // Asegúrate de que el constructor acepte contexto
+        val textViewRoles: TextView = binding.textViewRoles
+
+        // Obtener roles y mostrar en TextView
+        val roles = dbHelper.getRoles()
+
+        val users = dbHelper.getAllUsers()
+        textViewRoles.text = users.joinToString("\n") { "${it.nombres} (${it.email})" }
         return root
     }
 

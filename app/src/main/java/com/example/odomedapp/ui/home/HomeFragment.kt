@@ -36,19 +36,9 @@ class HomeFragment : Fragment() {
 
         // Conectar elementos de la interfaz
         val textViewWelcome: TextView = binding.textViewWelcome
-        val buttonStart: Button = binding.buttonStart
 
-        // Agregar funcionalidad al botón
-        buttonStart.setOnClickListener {
-            textViewWelcome.text = "¡Has iniciado la aplicación!"
-        }
 
-        val textViewRoles: TextView = binding.textViewRoles
-        val dbHelper = DatabaseHelper(requireContext()) // Asegúrate de que el constructor acepte contexto
 
-        // Obtener roles y mostrar en TextView
-        val roles = dbHelper.getRoles()
-        textViewRoles.text = roles.joinToString("\n") { it }
 
         return root
     }

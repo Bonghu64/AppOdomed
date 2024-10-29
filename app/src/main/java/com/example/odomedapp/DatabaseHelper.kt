@@ -1,6 +1,8 @@
 package com.example.odomedapp
+import com.example.odomedapp.data.User
 
 import android.content.Context
+import android.database.Cursor
 import android.os.StrictMode
 import android.util.Log
 import java.sql.*
@@ -45,6 +47,30 @@ class DatabaseHelper(requireContext: Context) {
             Log.e("DatabaseHelper", "Otro error en la conexión", e)
         }
         return rolesList
+    }
+
+    fun getAllUsers(): List<User> {
+        val users = mutableListOf<User>()
+        Log.d("DatabaseHelper", "Iniciando conexión a MySQL")
+        Class.forName("com.mysql.jdbc.Driver")  // Asegura la carga del driver JDBC
+        val connection: Connection = DriverManager.getConnection(url, user, password)
+        Log.d("DatabaseHelper", "Conexión establecida exitosamente")
+
+        val statement: Statement = connection.createStatement()
+        val resultSet: ResultSet? = statement.executeQuery("SELECT * FROM usuarios")
+
+        while (resultSet?.next() == true) {
+            val id = resultSet.getInt("id_usuario")
+            val name = resultSet.getString("nombres")
+            val email = resultSet.getString("email")
+            users.add(User(id, name, email))
+        }
+
+        resultSet?.close()
+        statement.close()
+        connection.close()
+
+        return users
     }
 
 
