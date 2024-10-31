@@ -32,5 +32,12 @@
                 android:text="Roles de usuario"
                 android:layout_marginTop="20dp"
                 android:layout_centerHorizontal="true"/>
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewUsers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
     </LinearLayout>
+    <!-- File: item_user.xml -->
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

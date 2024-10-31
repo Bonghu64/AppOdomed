@@ -10,13 +10,16 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.odomedapp.DatabaseHelper
 import com.example.odomedapp.R
 import com.example.odomedapp.databinding.FragmentSlideshowBinding
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.odomedapp.databinding.FragmentHomeBinding
+import com.example.odomedapp.ui.adapters.UserAdapter
 
 class SlideshowFragment : Fragment() {
 
     private var _binding: FragmentSlideshowBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    private lateinit var userAdapter: UserAdapter
+    private lateinit var recyclerView: RecyclerView
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -24,25 +27,21 @@ class SlideshowFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val slideshowViewModel =
-            ViewModelProvider(this).get(SlideshowViewModel::class.java)
+        val homeViewModel = ViewModelProvider(this).get(SlideshowViewModel::class.java)
 
         _binding = FragmentSlideshowBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textSlideshow
-        slideshowViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
+        // Configuración de RecyclerView
+        recyclerView = binding.recyclerViewUsers
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        val dbHelper = DatabaseHelper(requireContext()) // Asegúrate de que el constructor acepte contexto
-        val textViewRoles: TextView = binding.textViewRoles
-
-        // Obtener roles y mostrar en TextView
-        val roles = dbHelper.getRoles()
-
+        // Obtener usuarios y configurar el adaptador
+        val dbHelper = DatabaseHelper(requireContext())
         val users = dbHelper.getAllUsers()
-        textViewRoles.text = users.joinToString("\n") { "${it.nombres} (${it.email})" }
+        userAdapter = UserAdapter(users)
+        recyclerView.adapter = userAdapter
+
         return root
     }
 

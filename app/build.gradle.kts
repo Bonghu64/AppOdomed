@@ -49,4 +49,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(files("libs/mysql-connector-java-5.1.49.jar"))
+    implementation (libs.androidx.recyclerview)
+
 }
