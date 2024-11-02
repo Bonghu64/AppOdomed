@@ -12,9 +12,9 @@ import android.database.sqlite.SQLiteOpenHelper
 
 class DatabaseHelper(requireContext: Context) {
 
-    private val url = "jdbc:mysql://192.168.0.5:3306/clinicaodontologica1"
-    private val user = "nuevo_usuario"
-    private val password = "tu_contraseña"
+    private val url = "jdbc:mysql://192.168.0.6:3306/clinicaodontologica1"
+    private val userDB = "nuevo_usuario"
+    private val passwordDB = "tu_contraseña"
 
     init {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
@@ -26,7 +26,7 @@ class DatabaseHelper(requireContext: Context) {
         try {
             Log.d("DatabaseHelper", "Iniciando conexión a MySQL")
             Class.forName("com.mysql.jdbc.Driver")  // Asegura la carga del driver JDBC
-            val connection: Connection = DriverManager.getConnection(url, user, password)
+            val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
             Log.d("DatabaseHelper", "Conexión establecida exitosamente")
 
             val statement: Statement = connection.createStatement()
@@ -52,36 +52,14 @@ class DatabaseHelper(requireContext: Context) {
         return rolesList
     }
 
-    fun getAllUsers(): List<User> {
-        val users = mutableListOf<User>()
-        Log.d("DatabaseHelper", "Iniciando conexión a MySQL")
-        Class.forName("com.mysql.jdbc.Driver")  // Asegura la carga del driver JDBC
-        val connection: Connection = DriverManager.getConnection(url, user, password)
-        Log.d("DatabaseHelper", "Conexión establecida exitosamente")
 
-        val statement: Statement = connection.createStatement()
-        val resultSet: ResultSet? = statement.executeQuery("SELECT * FROM usuarios")
-
-        while (resultSet?.next() == true) {
-            val id = resultSet.getInt("id_usuario")
-            val name = resultSet.getString("nombres")
-            val email = resultSet.getString("email")
-            users.add(User(id, name, email))
-        }
-
-        resultSet?.close()
-        statement.close()
-        connection.close()
-
-        return users
-    }
     // File: DatabaseHelper.kt
     fun getAllCitas(): List<Cita> {
         val citas = mutableListOf<Cita>()
         Log.d("DatabaseHelper", "Iniciando conexión a MySQL")
         Class.forName("com.mysql.jdbc.Driver")  // Asegura la carga del driver JDBC
 
-        val connection: Connection = DriverManager.getConnection(url, user, password)
+        val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
         Log.d("DatabaseHelper", "Conexión establecida exitosamente")
 
         val statement: Statement = connection.createStatement()
@@ -108,6 +86,33 @@ class DatabaseHelper(requireContext: Context) {
         return citas
     }
 
+    fun loginUser(email: String, password: String): User? {
+        var user: User? = null
+        Class.forName("com.mysql.jdbc.Driver") // Carga el driver JDBC
+        val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
+        val statement = connection.prepareStatement("SELECT * FROM usuarios WHERE email = ? AND contrasenia = ? AND activo = 1")
+
+        statement.setString(1, email)
+        statement.setString(2, password)
+
+        val resultSet: ResultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            val id = resultSet.getInt("id_usuario")
+            val nombres = resultSet.getString("nombres")
+            val apellidos = resultSet.getString("apellidos")
+            val rolId = resultSet.getInt("rol_id")
+            val activo = resultSet.getBoolean("activo")
+
+            user = User(id, nombres, apellidos, email, rolId, activo)
+        }
+
+        resultSet.close()
+        statement.close()
+        connection.close()
+
+        return user
+    }
 
 
 

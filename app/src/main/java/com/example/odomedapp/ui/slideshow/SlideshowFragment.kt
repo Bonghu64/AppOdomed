@@ -32,15 +32,6 @@ class SlideshowFragment : Fragment() {
         _binding = FragmentSlideshowBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        // Configuración de RecyclerView
-        recyclerView = binding.recyclerViewUsers
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-
-        // Obtener usuarios y configurar el adaptador
-        val dbHelper = DatabaseHelper(requireContext())
-        val users = dbHelper.getAllUsers()
-        userAdapter = UserAdapter(users)
-        recyclerView.adapter = userAdapter
 
         return root
     }

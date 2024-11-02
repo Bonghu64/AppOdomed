@@ -14,15 +14,20 @@
             android:theme="@style/Theme.OdomedApp"
             tools:targetApi="31">
         <activity
-                android:name=".MainActivity"
+                android:name=".LoginActivity"
                 android:exported="true"
-                android:label="@string/app_name"
                 android:theme="@style/Theme.OdomedApp.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+
+        <!-- MainActivity (actividad secundaria a la que se redirige después del login) -->
+        <activity
+                android:name=".MainActivity"
+                android:exported="true"
+                android:theme="@style/Theme.OdomedApp.NoActionBar">
         </activity>
     </application>
 
