@@ -29,6 +29,8 @@
                 android:exported="true"
                 android:theme="@style/Theme.OdomedApp.NoActionBar">
         </activity>
+        <activity android:name=".ui.gallery.CrearCitaActivity" />
+
     </application>
 
 </manifest>

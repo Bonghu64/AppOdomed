@@ -1,5 +1,6 @@
 package com.example.odomedapp.ui.gallery
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -43,6 +44,12 @@ class GalleryFragment : Fragment() {
         val adapter = CitaAdapter(citasList)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        // Configurar el botón para crear una cita
+        binding.btnCrearCita.setOnClickListener {
+            val intent = Intent(activity, CrearCitaActivity::class.java)
+            startActivity(intent)
+        }
+
         return root
     }
 

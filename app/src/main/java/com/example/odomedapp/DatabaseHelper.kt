@@ -9,6 +9,7 @@ import com.example.odomedapp.data.Cita
 import java.sql.*
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.example.odomedapp.data.SessionManager
 
 class DatabaseHelper(requireContext: Context) {
 
@@ -105,6 +106,9 @@ class DatabaseHelper(requireContext: Context) {
             val activo = resultSet.getBoolean("activo")
 
             user = User(id, nombres, apellidos, email, rolId, activo)
+
+            // Guardamos el usuario en SessionManager para acceso en toda la app
+            SessionManager.saveUser(user)
         }
 
         resultSet.close()
@@ -113,8 +117,5 @@ class DatabaseHelper(requireContext: Context) {
 
         return user
     }
-
-
-
 
 }
