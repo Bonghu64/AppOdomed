@@ -6,7 +6,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.gallery.GalleryFragment">
-
+    <!-- Botón para crear una nueva cita -->
+    <Button
+            android:id="@+id/btnCrearCita"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crear Cita" tools:ignore="MissingConstraints" app:layout_constraintTop_toTopOf="parent"/>
     <TextView
             android:id="@+id/text_gallery"
             android:layout_width="match_parent"
@@ -23,5 +28,6 @@
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewUsers"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" tools:ignore="MissingConstraints"/>
+            android:layout_height="wrap_content" tools:ignore="MissingConstraints"
+            app:layout_constraintTop_toBottomOf="@+id/btnCrearCita"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

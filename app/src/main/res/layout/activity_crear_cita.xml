@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="match_parent">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical"
+                  android:padding="16dp">
+
+        <!-- Aquí irán los campos de fecha, paciente, odontólogo, estado de cita, y horario según el usuario logueado -->
+
+
+        <!-- Título -->
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Crear Cita"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="16dp"/>
+
+        <!-- Selección de Fecha -->
+        <TextView
+                android:id="@+id/fechaTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Seleccionar Fecha"
+                android:padding="10dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:textColor="?android:attr/textColorPrimary"
+                android:drawableEnd="@drawable/ic_calendar"/>
+
+        <!-- Spinner para Paciente (visible solo para ciertos roles) -->
+        <Spinner
+                android:id="@+id/pacienteSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:paddingVertical="8dp"
+                android:layout_marginTop="8dp"/>
+
+        <!-- Spinner para Odontólogo (visible solo para ciertos roles) -->
+        <Spinner
+                android:id="@+id/odontologoSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:paddingVertical="8dp"
+                android:layout_marginTop="8dp"/>
+
+        <!-- Spinner para Estado (visible solo para ciertos roles) -->
+        <Spinner
+                android:id="@+id/estadoSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:paddingVertical="8dp"
+                android:layout_marginTop="8dp"/>
+
+        <!-- Spinner para Horario -->
+        <Spinner
+                android:id="@+id/horarioSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp"
+                android:layout_marginTop="8dp"/>
+
+        <!-- Botón para Guardar -->
+        <Button
+                android:id="@+id/guardarButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Guardar Cita"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="?android:attr/colorAccent"
+                android:textColor="@android:color/white"
+                android:paddingVertical="12dp"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
