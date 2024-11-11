@@ -9,6 +9,12 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.example.odomedapp.data.*
 
+import javax.crypto.SecretKeyFactory
+import java.security.spec.InvalidKeySpecException
+
+import java.util.Base64
+import javax.crypto.spec.PBEKeySpec
+
 class DatabaseHelper(requireContext: Context) {
 
     private val url = "jdbc:mysql://192.168.0.6:3306/clinicaodontologica1"
@@ -20,6 +26,29 @@ class DatabaseHelper(requireContext: Context) {
         StrictMode.setThreadPolicy(policy)
     }
 
+    fun verifyPassword(password: String, storedHash: String): Boolean {
+        // Dividir el hash en sus partes
+        val parts = storedHash.split("$")
+        if (parts.size != 4) return false
+
+        val algorithm = parts[0]  // pbkdf2_sha256
+        val iterations = parts[1].toInt()  // número de iteraciones, en este caso 870000
+        val salt = Base64.getDecoder().decode(parts[2])  // salt en base64
+        val hash = parts[3]  // hash de contraseña en base64
+
+        return try {
+            // Crear la clave usando PBKDF2 con HMAC SHA256
+            val spec = PBEKeySpec(password.toCharArray(), salt, iterations, 256)  // 256 bits = 32 bytes
+            val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+            val hashBytes = factory.generateSecret(spec).encoded
+            val base64Hash = Base64.getEncoder().encodeToString(hashBytes)
+
+            // Comparar el hash generado con el hash almacenado en la base de datos
+            base64Hash == hash
+        } catch (e: InvalidKeySpecException) {
+            false
+        }
+    }
     fun getRoles(): List<String> {
         val rolesList = mutableListOf<String>()
         try {
@@ -107,13 +136,14 @@ class DatabaseHelper(requireContext: Context) {
 
     fun loginUser(email: String, password: String): User? {
         var user: User? = null
-        Class.forName("com.mysql.jdbc.Driver") // Carga el driver JDBC
+
+        // Cargar el driver JDBC
+        Class.forName("com.mysql.jdbc.Driver")
         val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
-        val statement = connection.prepareStatement("SELECT * FROM usuarios WHERE email = ? AND contrasenia = ? AND activo = 1")
 
+        // Preparar la consulta para obtener el hash de contraseña almacenado
+        val statement = connection.prepareStatement("SELECT * FROM usuarios WHERE email = ? AND activo = 1")
         statement.setString(1, email)
-        statement.setString(2, password)
-
         val resultSet: ResultSet = statement.executeQuery()
 
         if (resultSet.next()) {
@@ -122,11 +152,13 @@ class DatabaseHelper(requireContext: Context) {
             val apellidos = resultSet.getString("apellidos")
             val rolId = resultSet.getInt("rol_id")
             val activo = resultSet.getBoolean("activo")
+            val storedHash = resultSet.getString("contrasenia")
 
-            user = User(id, nombres, apellidos, email, rolId, activo)
-
-            // Guardamos el usuario en SessionManager para acceso en toda la app
-            SessionManager.saveUser(user)
+            // Verificar si la contraseña ingresada coincide con el hash almacenado
+            if (verifyPassword(password, storedHash)) {
+                user = User(id, nombres, apellidos, email, rolId, activo)
+                SessionManager.saveUser(user)  // Guardamos el usuario en SessionManager para acceso en toda la app
+            }
         }
 
         resultSet.close()
