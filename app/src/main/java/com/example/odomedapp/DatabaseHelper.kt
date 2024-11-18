@@ -11,9 +11,9 @@ import com.example.odomedapp.data.*
 
 class DatabaseHelper(requireContext: Context) {
 
-    private val url = "jdbc:mysql://192.168.0.6:3306/clinicaodontologica1"
-    private val userDB = "nuevo_usuario"
-    private val passwordDB = "tu_contraseña"
+    private val url = "jdbc:mysql://#:#/clinicaodontologica"
+    private val userDB = "#"
+    private val passwordDB = "#"
 
     init {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()

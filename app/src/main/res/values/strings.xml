@@ -10,4 +10,5 @@
     <string name="menu_home">Inicio</string>
     <string name="menu_gallery">Citas</string>
     <string name="menu_slideshow">Usuarios</string>
+    <string name="title_activity_splash_screen">SplashScreenActivity</string>
 </resources>
