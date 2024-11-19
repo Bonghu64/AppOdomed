@@ -13,7 +13,9 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/Theme.OdomedApp"
-            tools:targetApi="31">
+            android:forceDarkAllowed="false"
+            tools:targetApi="31"
+            android:screenOrientation="portrait" tools:ignore="DiscouragedApi">
 
         <activity android:name=".SplashScreenActivity" android:exported="true">
             <intent-filter>

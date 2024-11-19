@@ -2,6 +2,8 @@ package com.example.odomedapp
 
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -11,7 +13,10 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.example.odomedapp.data.SessionManager
 import com.example.odomedapp.databinding.ActivityMainBinding
+import android.content.Intent
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -55,4 +60,32 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_logout -> {
+                logoutUser()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+    private fun logoutUser() {
+        val sessionManager = SessionManager // Asegúrate de usar tu clase SessionManager correctamente
+        val user = sessionManager.getUser()
+
+        // Limpia la sesión
+        sessionManager.clearUser()
+
+        // Muestra un mensaje de despedida
+        val userName = user?.nombres ?: "Usuario" // Ajusta esto según tu modelo de datos
+        Toast.makeText(this, "Hasta luego, $userName", Toast.LENGTH_LONG).show()
+
+        // Redirige al login
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
+
+
 }
