@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -12,25 +13,32 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/Theme.OdomedApp"
-            tools:targetApi="31">
+            android:forceDarkAllowed="false"
+            tools:targetApi="31"
+            android:screenOrientation="portrait" tools:ignore="DiscouragedApi">
+
+        <activity android:name=".SplashScreenActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
                 android:name=".LoginActivity"
                 android:exported="true"
                 android:theme="@style/Theme.OdomedApp.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
-        <!-- MainActivity (actividad secundaria a la que se redirige después del login) -->
         <activity
                 android:name=".MainActivity"
                 android:exported="true"
                 android:theme="@style/Theme.OdomedApp.NoActionBar">
         </activity>
-        <activity android:name=".ui.gallery.CrearCitaActivity" />
-
+        <activity android:name=".ui.gallery.CrearCitaActivity"/>
     </application>
 
 </manifest>
