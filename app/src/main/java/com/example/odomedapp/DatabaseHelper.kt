@@ -11,7 +11,7 @@ import com.example.odomedapp.data.*
 
 class DatabaseHelper(requireContext: Context) {
 
-    private val url = "jdbc:mysql://:/clinicaodontologica"
+    private val url = "jdbc:mysql://:22966/clinicaodontologica"
     private val userDB = ""
     private val passwordDB = ""
 
@@ -222,27 +222,43 @@ class DatabaseHelper(requireContext: Context) {
     }
 
     fun getOdontologos(): List<Odontologo> {
-        val odontologosList = mutableListOf<Odontologo>()
+        val odontologos = mutableListOf<Odontologo>()
+        val query = """
+        SELECT o.id_odontologo, o.numero_licencia, o.especializacion, o.activo, 
+               u.nombres, u.apellidos
+        FROM odontologos o
+        INNER JOIN usuarios u ON o.id_odontologo = u.id_usuario
+        WHERE o.activo = 1 AND u.activo = 1
+    """
+
         try {
-            Class.forName("com.mysql.jdbc.Driver")
-            val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
-            val statement = connection.createStatement()
-            val resultSet = statement.executeQuery("SELECT id_odontologo, nombres, apellidos FROM odontologos WHERE activo = 1")
+            val connection = DriverManager.getConnection(url, userDB, passwordDB)
+            val statement = connection.prepareStatement(query)
+            val resultSet = statement.executeQuery()
 
             while (resultSet.next()) {
-                val idOdontologo = resultSet.getInt("id_odontologo")
-                val nombre = resultSet.getString("nombres") + " " + resultSet.getString("apellidos")
-                odontologosList.add(Odontologo(idOdontologo, nombre))
+                val odontologo = Odontologo(
+                    idOdontologo = resultSet.getInt("id_odontologo"),
+                    numeroLicencia = resultSet.getString("numero_licencia"),
+                    especializacion = resultSet.getString("especializacion"),
+                    activo = resultSet.getBoolean("activo"),
+                    nombres = resultSet.getString("nombres"),
+                    apellidos = resultSet.getString("apellidos")
+                )
+                odontologos.add(odontologo)
             }
 
             resultSet.close()
             statement.close()
             connection.close()
         } catch (e: Exception) {
-            Log.e("DatabaseHelper", "Error al obtener odontólogos", e)
+            e.printStackTrace()
         }
-        return odontologosList
+
+        return odontologos
     }
+
+
     fun getOdontologoIdByUserId(userId: Int): Int? {
         var odontologoId: Int? = null
         try {
@@ -311,6 +327,75 @@ class DatabaseHelper(requireContext: Context) {
             Log.e("DatabaseHelper", "Error al obtener idPaciente por userId", e)
         }
         return pacienteId
+    }
+
+    fun getAvailableCitas(date: String, odontologoId: Int): List<Cita> {
+        val citas = mutableListOf<Cita>()
+        val connection = DriverManager.getConnection(url, userDB, passwordDB)
+        val statement = connection.prepareStatement(
+            "SELECT * FROM citas WHERE fecha = ? AND id_odontologo = ? AND id_paciente IS NULL"
+        )
+        statement.setString(1, date)
+        statement.setInt(2, odontologoId)
+
+        val resultSet = statement.executeQuery()
+        while (resultSet.next()) {
+            citas.add(
+                Cita(
+                    idCita = resultSet.getInt("id_cita"),
+                    fecha = resultSet.getString("fecha"),
+                    idPaciente = null,
+                    idOdontologo = resultSet.getInt("id_odontologo"),
+                    estadoCita = resultSet.getString("estado_cita"),
+                    idRecepcionista = resultSet.getInt("id_recepcionista"),
+                    idCosto = resultSet.getInt("id_costo"),
+                    idHorario = resultSet.getInt("id_horario"),
+                    activo = resultSet.getBoolean("activo")
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        connection.close()
+        return citas
+    }
+    fun updateCita(idCita: Int, idPaciente: Int): Boolean {
+        val connection = DriverManager.getConnection(url, userDB, passwordDB)
+        val statement = connection.prepareStatement(
+            "UPDATE citas SET id_paciente = ? WHERE id_cita = ?"
+        )
+        statement.setInt(1, idPaciente)
+        statement.setInt(2, idCita)
+
+        val rowsUpdated = statement.executeUpdate()
+        statement.close()
+        connection.close()
+        return rowsUpdated > 0
+    }
+    fun getHorarioById(idHorario: Int?): Horario? {
+        if (idHorario == null) return null
+
+        var horario: Horario? = null
+        val connection = DriverManager.getConnection(url, userDB, passwordDB)
+        val statement = connection.prepareStatement(
+            "SELECT * FROM horarios WHERE id_horario = ?"
+        )
+        statement.setInt(1, idHorario)
+
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            horario = Horario(
+                idHorario = resultSet.getInt("id_horario"),
+                horario = resultSet.getString("horario")
+            )
+        }
+
+        resultSet.close()
+        statement.close()
+        connection.close()
+
+        return horario
     }
 
 
