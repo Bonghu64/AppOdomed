@@ -223,10 +223,16 @@ class DatabaseHelper(requireContext: Context) {
 
     fun getOdontologos(): List<Odontologo> {
         val odontologos = mutableListOf<Odontologo>()
-        val query = "SELECT id_odontologo, numero_licencia, especializacion, activo FROM odontologos WHERE activo = 1"
+        val query = """
+        SELECT o.id_odontologo, o.numero_licencia, o.especializacion, o.activo, 
+               u.nombres, u.apellidos
+        FROM odontologos o
+        INNER JOIN usuarios u ON o.id_odontologo = u.id_usuario
+        WHERE o.activo = 1 AND u.activo = 1
+    """
 
         try {
-            val connection = DriverManager.getConnection(url, userDB, passwordDB) // Método para obtener la conexión
+            val connection = DriverManager.getConnection(url, userDB, passwordDB)
             val statement = connection.prepareStatement(query)
             val resultSet = statement.executeQuery()
 
@@ -235,7 +241,9 @@ class DatabaseHelper(requireContext: Context) {
                     idOdontologo = resultSet.getInt("id_odontologo"),
                     numeroLicencia = resultSet.getString("numero_licencia"),
                     especializacion = resultSet.getString("especializacion"),
-                    activo = resultSet.getBoolean("activo")
+                    activo = resultSet.getBoolean("activo"),
+                    nombres = resultSet.getString("nombres"),
+                    apellidos = resultSet.getString("apellidos")
                 )
                 odontologos.add(odontologo)
             }
@@ -249,6 +257,7 @@ class DatabaseHelper(requireContext: Context) {
 
         return odontologos
     }
+
 
     fun getOdontologoIdByUserId(userId: Int): Int? {
         var odontologoId: Int? = null
@@ -363,5 +372,31 @@ class DatabaseHelper(requireContext: Context) {
         connection.close()
         return rowsUpdated > 0
     }
+    fun getHorarioById(idHorario: Int?): Horario? {
+        if (idHorario == null) return null
+
+        var horario: Horario? = null
+        val connection = DriverManager.getConnection(url, userDB, passwordDB)
+        val statement = connection.prepareStatement(
+            "SELECT * FROM horarios WHERE id_horario = ?"
+        )
+        statement.setInt(1, idHorario)
+
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            horario = Horario(
+                idHorario = resultSet.getInt("id_horario"),
+                horario = resultSet.getString("horario")
+            )
+        }
+
+        resultSet.close()
+        statement.close()
+        connection.close()
+
+        return horario
+    }
+
 
 }

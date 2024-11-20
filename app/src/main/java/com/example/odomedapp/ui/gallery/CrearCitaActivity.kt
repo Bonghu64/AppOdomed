@@ -70,26 +70,35 @@ class CrearCitaActivity : AppCompatActivity() {
     private fun loadOdontologos() {
         val odontologosList = dbHelper.getOdontologos() // Obtén odontólogos desde la base de datos
         if (odontologosList.isNotEmpty()) {
-            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, odontologosList)
+            // Crear lista con formato "Dr. {nombres apellidos}, {especializacion}"
+            val odontologoNames = odontologosList.map { odontologo ->
+                "Dr. ${odontologo.nombres} ${odontologo.apellidos}, ${odontologo.especializacion ?: "General"}"
+            }
+
+            // Configurar el adapter para mostrar nombres formateados
+            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, odontologoNames)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.odontologoSpinner.adapter = adapter
 
-            // Mostrar odontólogo y configurar selección
+            // Mostrar spinner de odontólogos y configurar selección
             binding.odontologoSpinner.visibility = View.VISIBLE
             binding.odontologoSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    // Asignar el odontólogo seleccionado según su posición en la lista original
                     selectedOdontologo = odontologosList[position]
                     loadHorarios(selectedDate!!, selectedOdontologo!!.idOdontologo)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
-                    // Lógica si no se selecciona nada (opcional)
+                    selectedOdontologo = null
                 }
             }
         } else {
             Toast.makeText(this, "No hay odontólogos disponibles", Toast.LENGTH_SHORT).show()
+            binding.odontologoSpinner.visibility = View.GONE
         }
     }
+
 
     private fun loadHorarios(date: String, odontologoId: Int) {
         val horariosList = dbHelper.getAvailableCitas(date, odontologoId) // Citas disponibles
