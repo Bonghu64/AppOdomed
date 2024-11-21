@@ -4,6 +4,7 @@ import HorarioAdapter
 import OdontologoAdapter
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
@@ -113,13 +114,18 @@ class CrearCitaActivity : AppCompatActivity() {
                 val horariosList = withContext(Dispatchers.IO) {
                     val citasList = dbHelper.getAvailableCitas(date, odontologoId)
                     citasList.mapNotNull { cita ->
-                        dbHelper.getHorarioById(cita.idHorario)?.horario // Obtener horarios
+                        dbHelper.getHorarioById(cita.idHorario)?.let { horario ->
+                            Horario(
+                                idHorario = horario.idHorario,
+                                horario = horario.horario // Ajustar si "horario" tiene otro nombre
+                            )
+                        }
                     }
                 }
 
                 if (horariosList.isNotEmpty()) {
                     // Configurar el adaptador personalizado para horarios
-                    val adapter = HorarioAdapter(this@CrearCitaActivity, R.layout.horario_spinner_item, horariosList)
+                    val adapter = HorarioAdapter(this@CrearCitaActivity, horariosList)
                     binding.horarioSpinner.adapter = adapter
 
                     // Mostrar el spinner de horarios
@@ -135,26 +141,42 @@ class CrearCitaActivity : AppCompatActivity() {
 
 
 
+
     private fun guardarCita() {
-        val horarioSeleccionado = binding.horarioSpinner.selectedItem?.toString() ?: return
-        if (horarioSeleccionado == "Elija horario") {
+        // Verificar si hay un odontólogo seleccionado
+        if (selectedOdontologo == null) {
+            Toast.makeText(this, "Debe elegir un odontólogo válido", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Verificar si hay un horario seleccionado
+        val horarioSeleccionado = binding.horarioSpinner.selectedItem as? Horario
+        if (horarioSeleccionado == null) {
             Toast.makeText(this, "Debe elegir un horario válido", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val horarioMap = binding.horarioSpinner.tag as? Map<String, Cita> ?: return
-        val citaSeleccionada = horarioMap[horarioSeleccionado] ?: return
+        // Obtener el ID del usuario logueado (paciente)
         val userId = SessionManager.getUser()?.idUsuario ?: return
 
+        // Actualizar la cita en la base de datos
         lifecycleScope.launch(Dispatchers.IO) {
-            val success = dbHelper.updateCita(citaSeleccionada.idCita, userId)
-            withContext(Dispatchers.Main) {
-                if (success) {
-                    Toast.makeText(this@CrearCitaActivity, "Cita programada exitosamente", Toast.LENGTH_SHORT).show()
-                    finish()
-                } else {
+            try {
+                val success = dbHelper.updateCita(horarioSeleccionado.idHorario, userId)
+                withContext(Dispatchers.Main) {
+                    if (success) {
+                        Toast.makeText(this@CrearCitaActivity, "Cita programada exitosamente", Toast.LENGTH_SHORT).show()
+                        finish()
+                    } else {
+                        Toast.makeText(this@CrearCitaActivity, "Error al programar la cita", Toast.LENGTH_SHORT).show()
+
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
                     Toast.makeText(this@CrearCitaActivity, "Error al programar la cita", Toast.LENGTH_SHORT).show()
                 }
+                Log.e("asas","a", e)
             }
         }
     }

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:padding="8dp"
-          android:textSize="16sp"
-          android:textColor="@android:color/black"
-          android:gravity="center_vertical" />
+<TextView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/text_horario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:padding="8dp" />

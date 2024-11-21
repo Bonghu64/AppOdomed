@@ -55,57 +55,59 @@ class DatabaseHelper(requireContext: Context) {
 
 
     // File: DatabaseHelper.kt
-    fun getAllCitas(): List<Cita> {
-        val citas = mutableListOf<Cita>()
-        Log.d("DatabaseHelper", "Iniciando conexión a MySQL")
-        var user: User? = null
-        Class.forName("com.mysql.jdbc.Driver") // Carga el driver JDBC
-        val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
+    suspend fun getAllCitas(): List<Cita> {
+        return withContext(Dispatchers.IO) {
+            val citas = mutableListOf<Cita>()
+            Log.d("DatabaseHelper", "Iniciando conexión a MySQL")
 
-        val idUsuarioCitas = SessionManager.getUser()?.idUsuario
-        val idRolCitas = SessionManager.getUser()?.rolId
-        var statement: PreparedStatement? = null
-        when(idRolCitas){
-            1 -> {
-                statement = connection.prepareStatement("SELECT * FROM citas WHERE id_odontologo = ? AND activo = 1")
-                if (idUsuarioCitas != null) {
-                    statement.setInt(1, idUsuarioCitas)
+            var user: User? = null
+            Class.forName("com.mysql.jdbc.Driver") // Carga el driver JDBC
+            val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
+
+            val idUsuarioCitas = SessionManager.getUser()?.idUsuario
+            val idRolCitas = SessionManager.getUser()?.rolId
+            var statement: PreparedStatement? = null
+            when(idRolCitas){
+                1 -> {
+                    statement = connection.prepareStatement("SELECT * FROM citas WHERE id_odontologo = ? AND activo = 1")
+                    if (idUsuarioCitas != null) {
+                        statement.setInt(1, idUsuarioCitas)
+                    }
                 }
-
-            }
-            3 -> {
-                statement = connection.prepareStatement("SELECT * FROM citas WHERE id_paciente = ? AND activo = 1")
-                if (idUsuarioCitas != null) {
-                    statement.setInt(1, idUsuarioCitas)
+                3 -> {
+                    statement = connection.prepareStatement("SELECT * FROM citas WHERE id_paciente = ? AND activo = 1")
+                    if (idUsuarioCitas != null) {
+                        statement.setInt(1, idUsuarioCitas)
+                    }
                 }
             }
+
+            val resultSet: ResultSet? = statement?.executeQuery() ?: null
+
+            while (resultSet?.next() == true) {
+                val idCita = resultSet.getInt("id_cita")
+                val fecha = resultSet.getString("fecha")
+                val idPaciente = resultSet.getInt("id_paciente").takeIf { !resultSet.wasNull() }
+                val idOdontologo = resultSet.getInt("id_odontologo").takeIf { !resultSet.wasNull() }
+                val idRecepcionista = resultSet.getInt("id_recepcionista").takeIf { !resultSet.wasNull() }
+                val estadoCita = resultSet.getString("estado_cita")
+                val idCosto = resultSet.getInt("id_costo").takeIf { !resultSet.wasNull() }
+                val idHorario = resultSet.getInt("id_horario").takeIf { !resultSet.wasNull() }
+                val activo = resultSet.getInt("activo") == 1
+
+                citas.add(Cita(idCita, fecha, idPaciente, idOdontologo, idRecepcionista, estadoCita, idCosto, idHorario, activo))
+            }
+
+            resultSet?.close()
+            if (statement != null) {
+                statement.close()
+            }
+            connection.close()
+
+            citas
         }
-
-
-        val resultSet: ResultSet? = statement?.executeQuery() ?: null
-
-        while (resultSet?.next() == true) {
-            val idCita = resultSet.getInt("id_cita")
-            val fecha = resultSet.getString("fecha")
-            val idPaciente = resultSet.getInt("id_paciente").takeIf { !resultSet.wasNull() }
-            val idOdontologo = resultSet.getInt("id_odontologo").takeIf { !resultSet.wasNull() }
-            val idRecepcionista = resultSet.getInt("id_recepcionista").takeIf { !resultSet.wasNull() }
-            val estadoCita = resultSet.getString("estado_cita")
-            val idCosto = resultSet.getInt("id_costo").takeIf { !resultSet.wasNull() }
-            val idHorario = resultSet.getInt("id_horario").takeIf { !resultSet.wasNull() }
-            val activo = resultSet.getInt("activo") == 1
-
-            citas.add(Cita(idCita, fecha, idPaciente, idOdontologo, idRecepcionista, estadoCita, idCosto, idHorario, activo))
-        }
-
-        resultSet?.close()
-        if (statement != null) {
-            statement.close()
-        }
-        connection.close()
-
-        return citas
     }
+
 
     suspend fun loginUser(email: String, password: String): User? {
         return withContext(Dispatchers.IO) {
@@ -368,17 +370,24 @@ class DatabaseHelper(requireContext: Context) {
         return citas
     }
     fun updateCita(idCita: Int, idPaciente: Int): Boolean {
-        val connection = DriverManager.getConnection(url, userDB, passwordDB)
-        val statement = connection.prepareStatement(
-            "UPDATE citas SET id_paciente = ? WHERE id_cita = ?"
-        )
-        statement.setInt(1, idPaciente)
-        statement.setInt(2, idCita)
+        try {
+            val connection = DriverManager.getConnection(url, userDB, passwordDB)
+            val statement = connection.prepareStatement(
+                "UPDATE citas SET id_paciente = ? WHERE id_cita = ?"
+            )
+            statement.setInt(1, idPaciente)
+            statement.setInt(2, idCita)
 
-        val rowsUpdated = statement.executeUpdate()
-        statement.close()
-        connection.close()
-        return rowsUpdated > 0
+            val rowsUpdated = statement.executeUpdate()
+            statement.close()
+            connection.close()
+
+            return rowsUpdated > 0
+        } catch (e: SQLException) {
+            e.printStackTrace()  // Para imprimir el error en el log
+            return false
+        }
+
     }
     fun getHorarioById(idHorario: Int?): Horario? {
         if (idHorario == null) return null
