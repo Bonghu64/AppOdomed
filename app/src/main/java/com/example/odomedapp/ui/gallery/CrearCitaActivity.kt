@@ -76,38 +76,66 @@ class CrearCitaActivity : AppCompatActivity() {
     }
 
     private fun loadOdontologos() {
-        val odontologosList = dbHelper.getOdontologos() // Obtén odontólogos desde la base de datos
-        if (odontologosList.isNotEmpty()) {
-            // Configurar el adaptador personalizado para odontólogos
-            val adapter = OdontologoAdapter(this, R.layout.odontologo_spinner_item, odontologosList)
-            binding.odontologoSpinner.adapter = adapter
+        // Mostrar el ProgressBar
+        binding.progressBar.visibility = View.VISIBLE
 
-            // Mostrar el spinner de odontólogos
-            binding.odontologoSpinner.visibility = View.VISIBLE
-            binding.odontologoSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    // Asignar el odontólogo seleccionado según su posición en la lista
-                    selectedOdontologo = odontologosList[position]
-                    loadHorarios(selectedDate!!, selectedOdontologo!!.idOdontologo)
+        // Deshabilitar la interacción con los Spinners, fecha, y botón guardar
+        binding.odontologoSpinner.isEnabled = false
+        binding.fechaTextView.isEnabled = false
+        binding.guardarButton.isEnabled = false // Deshabilitar el botón guardar
+
+        // Ejecutar la operación de base de datos en una corutina
+        lifecycleScope.launch {
+            try {
+                // Ejecutar la consulta en un hilo de fondo
+                val odontologosList = withContext(Dispatchers.IO) {
+                    dbHelper.getOdontologos() // Obtén odontólogos desde la base de datos
                 }
 
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-                    selectedOdontologo = null
+                if (odontologosList.isNotEmpty()) {
+                    // Configurar el adaptador personalizado para odontólogos
+                    val adapter = OdontologoAdapter(this@CrearCitaActivity, R.layout.odontologo_spinner_item, odontologosList)
+                    binding.odontologoSpinner.adapter = adapter
+
+                    // Mostrar el spinner de odontólogos
+                    binding.odontologoSpinner.visibility = View.VISIBLE
+                    binding.odontologoSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                            // Asignar el odontólogo seleccionado según su posición en la lista
+                            selectedOdontologo = odontologosList[position]
+                            loadHorarios(selectedDate!!, selectedOdontologo!!.idOdontologo)
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {
+                            selectedOdontologo = null
+                        }
+                    }
+                } else {
+                    Toast.makeText(this@CrearCitaActivity, "No hay odontólogos disponibles", Toast.LENGTH_SHORT).show()
+                    binding.odontologoSpinner.visibility = View.GONE
                 }
+            } catch (e: Exception) {
+                Toast.makeText(this@CrearCitaActivity, "Error al cargar odontólogos", Toast.LENGTH_SHORT).show()
+            } finally {
+                // Ocultar el ProgressBar y habilitar la interacción nuevamente
+                binding.progressBar.visibility = View.GONE
+                binding.odontologoSpinner.isEnabled = true
+                binding.fechaTextView.isEnabled = true
+                binding.guardarButton.isEnabled = true // Habilitar el botón guardar
             }
-        } else {
-            Toast.makeText(this, "No hay odontólogos disponibles", Toast.LENGTH_SHORT).show()
-            binding.odontologoSpinner.visibility = View.GONE
         }
     }
 
-
-
     private fun loadHorarios(date: String, odontologoId: Int) {
-        // Ocultar el spinner de horarios hasta que se carguen los datos
-        binding.horarioSpinner.visibility = View.GONE
+        // Mostrar el ProgressBar
+        binding.progressBar.visibility = View.VISIBLE
 
-        // Ejecutar la operación de base de datos en una corrutina
+        // Deshabilitar interacción con el spinner de odontólogos, fecha y botón guardar
+        binding.odontologoSpinner.isEnabled = false
+        binding.fechaTextView.isEnabled = false
+        binding.guardarButton.isEnabled = false // Deshabilitar el botón guardar
+
+        // Ejecutar la operación de base de datos en una corutina
         lifecycleScope.launch {
             try {
                 // Cambiar al contexto de IO para operaciones de base de datos
@@ -122,6 +150,7 @@ class CrearCitaActivity : AppCompatActivity() {
                         }
                     }
                 }
+                Log.d("Horarios", "Horarios: ${horariosList.map { it.idHorario }}")
 
                 if (horariosList.isNotEmpty()) {
                     // Configurar el adaptador personalizado para horarios
@@ -135,9 +164,17 @@ class CrearCitaActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 Toast.makeText(this@CrearCitaActivity, "Error al cargar horarios", Toast.LENGTH_SHORT).show()
+            } finally {
+                // Ocultar el ProgressBar y habilitar la interacción nuevamente
+                binding.progressBar.visibility = View.GONE
+                binding.odontologoSpinner.isEnabled = true
+                binding.fechaTextView.isEnabled = true
+                binding.guardarButton.isEnabled = true // Habilitar el botón guardar
             }
         }
     }
+
+
 
 
 
@@ -162,7 +199,12 @@ class CrearCitaActivity : AppCompatActivity() {
         // Actualizar la cita en la base de datos
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val success = dbHelper.updateCita(horarioSeleccionado.idHorario, userId)
+                val success = dbHelper.updateCita(
+                    horarioSeleccionado.idHorario,
+                    selectedOdontologo!!.idOdontologo,
+                    userId
+                )
+                Log.d("GuardarCita", "idHorario: ${horarioSeleccionado.idHorario}, userId: $userId, odontologo: ${selectedOdontologo!!.idOdontologo}")
                 withContext(Dispatchers.Main) {
                     if (success) {
                         Toast.makeText(this@CrearCitaActivity, "Cita programada exitosamente", Toast.LENGTH_SHORT).show()

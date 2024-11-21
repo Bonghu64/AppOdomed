@@ -22,39 +22,6 @@ class DatabaseHelper(requireContext: Context) {
         StrictMode.setThreadPolicy(policy)
     }
 
-    fun getRoles(): List<String> {
-        val rolesList = mutableListOf<String>()
-        try {
-            Log.d("DatabaseHelper", "Iniciando conexión a MySQL")
-            Class.forName("com.mysql.jdbc.Driver")  // Asegura la carga del driver JDBC
-            val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
-            Log.d("DatabaseHelper", "Conexión establecida exitosamente")
-
-            val statement: Statement = connection.createStatement()
-            val resultSet: ResultSet = statement.executeQuery("SELECT nombre_rol FROM roles WHERE activo = 1")
-
-            while (resultSet.next()) {
-                val role = resultSet.getString("nombre_rol")
-                rolesList.add(role)
-            }
-
-            resultSet.close()
-            statement.close()
-            connection.close()
-            Log.d("DatabaseHelper", "Conexión cerrada")
-
-        } catch (e: ClassNotFoundException) {
-            Log.e("DatabaseHelper", "Error: No se encontró el controlador JDBC", e)
-        } catch (e: SQLException) {
-            Log.e("DatabaseHelper", "Error de SQL: Fallo en la conexión", e)
-        } catch (e: Exception) {
-            Log.e("DatabaseHelper", "Otro error en la conexión", e)
-        }
-        return rolesList
-    }
-
-
-    // File: DatabaseHelper.kt
     suspend fun getAllCitas(): List<Cita> {
         return withContext(Dispatchers.IO) {
             val citas = mutableListOf<Cita>()
@@ -208,28 +175,6 @@ class DatabaseHelper(requireContext: Context) {
         return horariosList
     }
 
-    fun getPacientes(): List<Paciente> {
-        val pacientesList = mutableListOf<Paciente>()
-        try {
-            Class.forName("com.mysql.jdbc.Driver")
-            val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
-            val statement = connection.createStatement()
-            val resultSet = statement.executeQuery("SELECT id_paciente, seguro_medico, alergias FROM pacientes WHERE activo = 1")
-
-            while (resultSet.next()) {
-                val idPaciente = resultSet.getInt("id_paciente")
-                val nombre = resultSet.getString("seguro_medico") + " " + resultSet.getString("alergias")
-                pacientesList.add(Paciente(idPaciente, nombre))
-            }
-
-            resultSet.close()
-            statement.close()
-            connection.close()
-        } catch (e: Exception) {
-            Log.e("DatabaseHelper", "Error al obtener pacientes", e)
-        }
-        return pacientesList
-    }
 
     fun getOdontologos(): List<Odontologo> {
         val odontologos = mutableListOf<Odontologo>()
@@ -269,76 +214,6 @@ class DatabaseHelper(requireContext: Context) {
     }
 
 
-    fun getOdontologoIdByUserId(userId: Int): Int? {
-        var odontologoId: Int? = null
-        try {
-            Class.forName("com.mysql.jdbc.Driver") // Asegura la carga del driver JDBC
-            val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
-            val statement = connection.prepareStatement("SELECT * FROM usuarios WHERE id_usuario = ?")
-
-            SessionManager.getUser()?.let { statement.setInt(1, it.idUsuario) }
-
-            val resultSet: ResultSet = statement.executeQuery()
-            if (resultSet.next()) {
-                odontologoId = resultSet.getInt("id_usuario")
-            }
-
-            resultSet.close()
-            statement.close()
-            connection.close()
-
-        } catch (e: Exception) {
-            Log.e("DatabaseHelper", "Error al obtener idOdontologo por userId", e)
-        }
-        return odontologoId
-    }
-    fun getRecepcionistaIdByUserId(userId: Int): Int? {
-        var recepcionistaId: Int? = null
-        try {
-            Class.forName("com.mysql.jdbc.Driver") // Asegura la carga del driver JDBC
-            val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
-            val statement = connection.prepareStatement("SELECT id_recepcionista FROM recepcionistas WHERE usuario_id = ?")
-
-            statement.setInt(1, userId)
-
-            val resultSet: ResultSet = statement.executeQuery()
-            if (resultSet.next()) {
-                recepcionistaId = resultSet.getInt("id_recepcionista")
-            }
-
-            resultSet.close()
-            statement.close()
-            connection.close()
-
-        } catch (e: Exception) {
-            Log.e("DatabaseHelper", "Error al obtener idRecepcionista por userId", e)
-        }
-        return recepcionistaId
-    }
-    fun getPacienteIdByUserId(userId: Int): Int? {
-        var pacienteId: Int? = null
-        try {
-            Class.forName("com.mysql.jdbc.Driver") // Asegura la carga del driver JDBC
-            val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
-            val statement = connection.prepareStatement("SELECT * FROM usuarios WHERE id_usuario = ?")
-
-            statement.setInt(1, userId)
-
-            val resultSet: ResultSet = statement.executeQuery()
-            if (resultSet.next()) {
-                pacienteId = resultSet.getInt("id_usuario")
-            }
-
-            resultSet.close()
-            statement.close()
-            connection.close()
-
-        } catch (e: Exception) {
-            Log.e("DatabaseHelper", "Error al obtener idPaciente por userId", e)
-        }
-        return pacienteId
-    }
-
     fun getAvailableCitas(date: String, odontologoId: Int): List<Cita> {
         val citas = mutableListOf<Cita>()
         val connection = DriverManager.getConnection(url, userDB, passwordDB)
@@ -369,16 +244,19 @@ class DatabaseHelper(requireContext: Context) {
         connection.close()
         return citas
     }
-    fun updateCita(idCita: Int, idPaciente: Int): Boolean {
+    fun updateCita(idHorario: Int, idOdontologo: Int, idPaciente: Int): Boolean {
         try {
             val connection = DriverManager.getConnection(url, userDB, passwordDB)
             val statement = connection.prepareStatement(
-                "UPDATE citas SET id_paciente = ? WHERE id_cita = ?"
+                "UPDATE citas SET id_paciente = ? WHERE id_horario = ? AND id_odontologo = ?"
             )
             statement.setInt(1, idPaciente)
-            statement.setInt(2, idCita)
+            statement.setInt(2, idHorario)
+            statement.setInt(3, idOdontologo)
 
             val rowsUpdated = statement.executeUpdate()
+            Log.d("UpdateCita", "Filas actualizadas: $rowsUpdated")
+
             statement.close()
             connection.close()
 
@@ -387,7 +265,6 @@ class DatabaseHelper(requireContext: Context) {
             e.printStackTrace()  // Para imprimir el error en el log
             return false
         }
-
     }
     fun getHorarioById(idHorario: Int?): Horario? {
         if (idHorario == null) return null
@@ -413,6 +290,53 @@ class DatabaseHelper(requireContext: Context) {
         connection.close()
 
         return horario
+    }
+
+    fun cancelarCita(idCita: Int): Boolean {
+        var isUpdated = false
+        try {
+            Class.forName("com.mysql.jdbc.Driver")
+            val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
+            val statement = connection.prepareStatement(
+                "UPDATE citas SET id_paciente = NULL WHERE id_cita = ? AND activo = 1"
+            )
+            statement.setInt(1, idCita)
+
+            isUpdated = statement.executeUpdate() > 0
+
+            statement.close()
+            connection.close()
+        } catch (e: Exception) {
+            Log.e("DatabaseHelper", "Error al cancelar la cita", e)
+        }
+        return isUpdated
+    }
+    // Ejemplo de función para obtener el odontólogo por su ID
+    fun obtenerOdontologoPorId(idOdontologo: Int): User? {
+        var user: User? = null
+        try {
+            val connection = DriverManager.getConnection(url, userDB, passwordDB)
+            val statement = connection.prepareStatement(
+                "SELECT u.nombres, u.apellidos FROM usuarios u " +
+                        "INNER JOIN odontologos o ON u.id_usuario = o.id_odontologo " +
+                        "WHERE o.id_odontologo = ?"
+            )
+            statement.setInt(1, idOdontologo)
+
+            val resultSet = statement.executeQuery()
+            if (resultSet.next()) {
+                val nombres = resultSet.getString("nombres")
+                val apellidos = resultSet.getString("apellidos")
+                user = User(idUsuario = idOdontologo, nombres = nombres, apellidos = apellidos, email = "", rolId = 0, activo = true)
+            }
+
+            resultSet.close()
+            statement.close()
+            connection.close()
+        } catch (e: SQLException) {
+            e.printStackTrace() // Para imprimir el error en el log
+        }
+        return user
     }
 
 

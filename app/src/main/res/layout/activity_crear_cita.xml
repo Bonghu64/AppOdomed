@@ -81,6 +81,12 @@
                 android:backgroundTint="?android:attr/colorAccent"
                 android:textColor="@android:color/white"
                 android:paddingVertical="12dp"/>
+        <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_gravity="center"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,18 +9,29 @@
               android:paddingBottom="8dp">
 
     <TextView
-            android:id="@+id/textViewFecha"
+            android:id="@+id/fechaTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Fecha de la cita"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:text="Fecha: "
+            android:textSize="16sp"/>
 
     <TextView
-            android:id="@+id/textViewEstado"
+            android:id="@+id/odontologoTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Estado"
-            android:textSize="14sp" />
+            android:text="Dr. Nombre Apellido"
+            android:textSize="16sp"/>
+
+    <TextView
+            android:id="@+id/estadoTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Estado: "
+            android:textSize="16sp"/>
+    <Button
+            android:id="@+id/btnCancelar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancelar" />
 
 </LinearLayout>
