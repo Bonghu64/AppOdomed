@@ -8,6 +8,8 @@ import java.sql.*
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.example.odomedapp.data.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class DatabaseHelper(requireContext: Context) {
 
@@ -105,36 +107,42 @@ class DatabaseHelper(requireContext: Context) {
         return citas
     }
 
-    fun loginUser(email: String, password: String): User? {
-        var user: User? = null
-        Class.forName("com.mysql.jdbc.Driver") // Carga el driver JDBC
-        val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
-        val statement = connection.prepareStatement("SELECT * FROM usuarios WHERE email = ? AND contrasenia = ? AND activo = 1")
+    suspend fun loginUser(email: String, password: String): User? {
+        return withContext(Dispatchers.IO) {
+            var user: User? = null
+            try {
+                Class.forName("com.mysql.jdbc.Driver") // Carga el driver JDBC
+                val connection: Connection = DriverManager.getConnection(url, userDB, passwordDB)
+                val statement = connection.prepareStatement("SELECT * FROM usuarios WHERE email = ? AND contrasenia = ? AND activo = 1")
 
-        statement.setString(1, email)
-        statement.setString(2, password)
+                statement.setString(1, email)
+                statement.setString(2, password)
 
-        val resultSet: ResultSet = statement.executeQuery()
+                val resultSet: ResultSet = statement.executeQuery()
 
-        if (resultSet.next()) {
-            val id = resultSet.getInt("id_usuario")
-            val nombres = resultSet.getString("nombres")
-            val apellidos = resultSet.getString("apellidos")
-            val rolId = resultSet.getInt("rol_id")
-            val activo = resultSet.getBoolean("activo")
+                if (resultSet.next()) {
+                    val id = resultSet.getInt("id_usuario")
+                    val nombres = resultSet.getString("nombres")
+                    val apellidos = resultSet.getString("apellidos")
+                    val rolId = resultSet.getInt("rol_id")
+                    val activo = resultSet.getBoolean("activo")
 
-            user = User(id, nombres, apellidos, email, rolId, activo)
+                    user = User(id, nombres, apellidos, email, rolId, activo)
 
-            // Guardamos el usuario en SessionManager para acceso en toda la app
-            SessionManager.saveUser(user)
+                    // Guardamos el usuario en SessionManager para acceso en toda la app
+                    SessionManager.saveUser(user)
+                }
+
+                resultSet.close()
+                statement.close()
+                connection.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            user
         }
-
-        resultSet.close()
-        statement.close()
-        connection.close()
-
-        return user
     }
+
 
     // File: DatabaseHelper.kt
 
