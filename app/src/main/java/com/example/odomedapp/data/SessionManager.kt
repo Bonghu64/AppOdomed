@@ -1,23 +1,36 @@
 package com.example.odomedapp.data
 
-import com.example.odomedapp.data.User
+import android.content.Context
+import android.content.SharedPreferences
+import com.google.gson.Gson
 
 object SessionManager {
-    private var loggedInUser: User? = null
+    private const val PREF_NAME = "UserSession"
+    private const val USER_KEY = "loggedInUser"
+
+    private lateinit var sharedPreferences: SharedPreferences
+    private val gson = Gson()
+
+    // Inicializa el SharedPreferences (llamar en Application o Activity)
+    fun initialize(context: Context) {
+        sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+    }
 
     fun saveUser(user: User) {
-        loggedInUser = user
+        val userJson = gson.toJson(user)
+        sharedPreferences.edit().putString(USER_KEY, userJson).apply()
     }
 
     fun getUser(): User? {
-        return loggedInUser
+        val userJson = sharedPreferences.getString(USER_KEY, null)
+        return if (userJson != null) gson.fromJson(userJson, User::class.java) else null
     }
 
     fun clearUser() {
-        loggedInUser = null
+        sharedPreferences.edit().remove(USER_KEY).apply()
     }
 
     fun isLoggedIn(): Boolean {
-        return loggedInUser != null
+        return sharedPreferences.contains(USER_KEY)
     }
 }

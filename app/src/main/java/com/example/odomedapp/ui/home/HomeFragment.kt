@@ -29,13 +29,13 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
+        //val textView: TextView = binding.textHome
+        //homeViewModel.text.observe(viewLifecycleOwner) {
+        //    textView.text = it
+        //}
 
         // Conectar elementos de la interfaz
-        val textViewWelcome: TextView = binding.textViewWelcome
+        //val textViewWelcome: TextView = binding.textViewWelcome
 
 
 

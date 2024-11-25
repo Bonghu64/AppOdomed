@@ -3,6 +3,7 @@ package com.example.odomedapp.ui.gallery
 import HorarioAdapter
 import OdontologoAdapter
 import android.app.DatePickerDialog
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -32,6 +33,7 @@ class CrearCitaActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCrearCitaBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         val user = SessionManager.getUser()
         if (user == null || user.rolId != 3) { // Solo pacientes (rol 3)

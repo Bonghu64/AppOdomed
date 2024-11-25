@@ -39,6 +39,7 @@
                 android:theme="@style/Theme.OdomedApp.NoActionBar">
         </activity>
         <activity android:name=".ui.gallery.CrearCitaActivity"/>
+        <meta-data android:name="preloaded_fonts" android:resource="@array/preloaded_fonts"/>
     </application>
 
 </manifest>

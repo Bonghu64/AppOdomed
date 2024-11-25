@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -7,31 +7,104 @@
         android:layout_height="match_parent"
         tools:context=".ui.home.HomeFragment">
 
-    <TextView
-            android:id="@+id/text_home"
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:orientation="vertical"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent">
+            android:layout_height="wrap_content">
+
+        <ImageView
+                android:src="@drawable/banner_huno"
+                android:layout_width="307dp"
+                android:layout_height="199dp"
+                android:id="@+id/imageView3"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="4dp"
+                app:layout_constraintHorizontal_bias="0.494"/>
         <TextView
-                android:id="@+id/textViewWelcome"
+                android:text="Clínica Dental"
+                android:layout_width="126dp"
+                android:layout_height="30dp"
+                android:id="@+id/textView6"
+                app:layout_constraintTop_toTopOf="@+id/imageView3"
+                app:layout_constraintStart_toStartOf="@+id/imageView3"
+                android:layout_marginTop="124dp"
+                android:layout_marginStart="28dp"
+                android:textStyle="bold"
+                android:textSize="18sp" android:textColor="#000000"/>
+
+        <TextView
+                android:text="ODOMED"
+                android:layout_width="126dp"
+                android:layout_height="30dp"
+                android:id="@+id/textView7"
+                app:layout_constraintTop_toTopOf="@+id/imageView3"
+                app:layout_constraintStart_toStartOf="@+id/imageView3"
+                android:layout_marginTop="140dp"
+                android:layout_marginStart="28dp"
+                android:textSize="18sp" android:textColor="#101010"/>
+        <TextView
+                android:text="Sobre Nosotros"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="¡Bienvenido a ODOMED!"
-                android:textSize="20sp"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="50dp"/>
+                android:id="@+id/textView8"
+                app:layout_constraintTop_toTopOf="@+id/imageView3"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.151"
+                android:layout_marginTop="204dp" android:textStyle="bold" android:textSize="22sp"
+                android:textColor="?attr/colorOnBackground" android:fontFamily="@font/akatab"/>
 
-    </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+                android:text="Nuestra misión en Clínica Dental es proporcionar atención dental de alta calidad en un ambiente cómodo y amigable. Nos esforzamos por mejorar la salud bucal de nuestros pacientes a través de tratamientos personalizados y tecnología avanzada. Valoramos la confianza y la satisfacción de nuestros pacientes, y trabajamos para crear sonrisas saludables y hermosas."
+                android:layout_width="305dp"
+                android:layout_height="225dp"
+                android:id="@+id/textView9"
+                app:layout_constraintTop_toBottomOf="@+id/textView8"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="8dp" android:textAlignment="textStart" android:textSize="16sp"
+                android:textColor="?attr/colorOnBackground" android:fontFamily="@font/akatab" android:textAllCaps="false"
+                android:textColorHighlight="#FFFFFF"/>
+        <ImageView
+                android:src="@drawable/bn_1"
+                android:layout_width="157dp"
+                android:layout_height="186dp"
+                android:id="@+id/imageView2"
+                app:layout_constraintTop_toBottomOf="@+id/textView9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="4dp"
+                app:layout_constraintHorizontal_bias="0.098"/>
+        <ImageView
+                android:src="@drawable/bn_1"
+                android:layout_width="157dp"
+                android:layout_height="186dp"
+                android:id="@+id/imageView6"
+                app:layout_constraintTop_toBottomOf="@+id/textView9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="160dp"
+                app:layout_constraintHorizontal_bias="0.098"/>
+        <ImageView
+                android:src="@drawable/bn_2"
+                android:layout_width="157dp"
+                android:layout_height="186dp"
+                android:id="@+id/imageView5"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView9"
+                app:layout_constraintHorizontal_bias="0.897"
+                android:layout_marginTop="4dp"
+                app:layout_constraintStart_toStartOf="parent"/>
+        <ImageView
+                android:src="@drawable/bn_2"
+                android:layout_width="157dp"
+                android:layout_height="186dp"
+                android:id="@+id/imageView7"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView9"
+                app:layout_constraintHorizontal_bias="0.897"
+                android:layout_marginTop="160dp" app:layout_constraintStart_toStartOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

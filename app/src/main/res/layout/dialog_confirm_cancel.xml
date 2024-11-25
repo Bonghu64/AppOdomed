@@ -15,7 +15,8 @@
             android:text="¿Seguro que deseas cancelar esta cita?"
             android:textSize="16sp"
             android:layout_marginBottom="20dp"
-            android:gravity="center" />
+            android:gravity="center"
+            android:textColor="@color/design_default_color_on_secondary"/>
 
     <!-- Botones para confirmar o cancelar -->
     <LinearLayout
@@ -30,7 +31,8 @@
                 android:layout_height="wrap_content"
                 android:text="Cancelar"
                 android:layout_marginEnd="8dp"
-                android:background="@android:color/darker_gray" />
+                android:backgroundTint="@android:color/darker_gray"
+                android:textColor="@android:color/white" />
 
         <Button
                 android:id="@+id/btnConfirmar"
@@ -38,6 +40,7 @@
                 android:layout_height="wrap_content"
                 android:text="Confirmar"
                 android:layout_marginStart="8dp"
-                android:background="@android:color/holo_red_dark" />
+                android:backgroundTint="@android:color/holo_red_dark"
+                android:textColor="@android:color/white" />
     </LinearLayout>
 </LinearLayout>
