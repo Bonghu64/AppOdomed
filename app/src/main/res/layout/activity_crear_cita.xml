@@ -1,75 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   xmlns:tools="http://schemas.android.com/tools"
                                                    android:layout_width="match_parent"
-                                                   android:layout_height="match_parent">
+                                                   android:layout_height="match_parent"
+                                                   tools:context=".ui.createAppointment.CreateAppointmentActivity">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:orientation="vertical"
-                  android:padding="16dp">
-
-        <!-- Aquí irán los campos de fecha, paciente, odontólogo, estado de cita, y horario según el usuario logueado -->
-
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:spacing="16dp">
 
         <!-- Título -->
+
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Crear Cita"
+                android:text="Programación de Cita"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:gravity="center"
                 android:layout_gravity="center_horizontal"
-                android:paddingBottom="16dp"/>
+                android:paddingBottom="16dp" />
 
-        <!-- Selección de Fecha -->
-        <TextView
-                android:id="@+id/fechaTextView"
+        <!-- CardView para Fecha -->
+        <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Seleccionar Fecha"
-                android:padding="10dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:gravity="center"
-                android:textSize="18sp"
-                android:textColor="?android:attr/textColorPrimary"
-                android:drawableEnd="@drawable/ic_calendar"/>
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
 
-        <!-- Spinner para Paciente (visible solo para ciertos roles) -->
-        <Spinner
-                android:id="@+id/pacienteSpinner"
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                <!-- Indicativo para la Fecha -->
+                <TextView
+                        android:id="@+id/indicativoFecha"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Selecciona una fecha disponible"
+                        android:textSize="16sp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:paddingBottom="8dp"
+                        android:layout_gravity="start"/>
+
+                <!-- Selección de Fecha -->
+                <TextView
+                        android:id="@+id/fechaTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Seleccionar Fecha"
+                        android:padding="10dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center"
+                        android:textSize="18sp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:drawableEnd="@drawable/ic_calendar"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- CardView para Odontólogo -->
+        <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:paddingVertical="8dp"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
 
-        <!-- Spinner para Odontólogo (visible solo para ciertos roles) -->
-        <Spinner
-                android:id="@+id/odontologoSpinner"
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                <!-- Indicativo para Odontólogo -->
+                <TextView
+                        android:id="@+id/indicativoOdontologo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Selecciona un odontólogo"
+                        android:textSize="16sp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:paddingBottom="8dp"
+                        android:layout_gravity="start"/>
+
+                <!-- Spinner para Odontólogo -->
+                <Spinner
+                        android:id="@+id/odontologoSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:paddingVertical="8dp"
+                        android:layout_marginTop="8dp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- CardView para Horario -->
+        <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:paddingVertical="8dp"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
 
-        <!-- Spinner para Estado (visible solo para ciertos roles) -->
-        <Spinner
-                android:id="@+id/estadoSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:paddingVertical="8dp"
-                android:layout_marginTop="8dp"/>
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
 
-        <!-- Spinner para Horario -->
-        <Spinner
-                android:id="@+id/horarioSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="8dp"
-                android:layout_marginTop="8dp"/>
+                <!-- Indicativo para Horario -->
+                <TextView
+                        android:id="@+id/indicativoHorario"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Selecciona un horario"
+                        android:textSize="16sp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:paddingBottom="8dp"
+                        android:layout_gravity="start"/>
+
+                <!-- Spinner para Horario -->
+                <Spinner
+                        android:id="@+id/horarioSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="8dp"
+                        android:layout_marginTop="8dp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <!-- Botón para Guardar -->
         <Button
@@ -81,12 +146,23 @@
                 android:backgroundTint="?android:attr/colorAccent"
                 android:textColor="@android:color/white"
                 android:paddingVertical="12dp"/>
+
+        <!-- ProgressBar para cargar -->
         <ProgressBar
                 android:id="@+id/progressBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
+
                 android:layout_gravity="center"/>
+        <Button
+                android:id="@+id/volverButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Volver"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

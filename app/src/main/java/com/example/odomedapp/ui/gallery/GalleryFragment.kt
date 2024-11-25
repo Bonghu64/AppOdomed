@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.odomedapp.DatabaseHelper
+import com.example.odomedapp.MainActivity
 import com.example.odomedapp.data.Cita
 import com.example.odomedapp.databinding.DialogConfirmCancelBinding
 import com.example.odomedapp.databinding.FragmentGalleryBinding
@@ -24,6 +25,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class GalleryFragment : Fragment() {
 
@@ -70,6 +73,9 @@ class GalleryFragment : Fragment() {
     }
 
     private fun cargarDatos() {
+        // Deshabilitar el menú
+        (activity as? MainActivity)?.disableMenu()
+
         // Muestra la capa de fondo transparente y el cuadro de progreso
         fondoTransparente.visibility = View.VISIBLE
         cuadroProgress.visibility = View.VISIBLE
@@ -95,26 +101,36 @@ class GalleryFragment : Fragment() {
                 DatabaseHelper(requireContext()).getAllCitas()
             }
 
-            // Actualiza la interfaz con los datos obtenidos
-            val newAdapter = CitaAdapter(citasList, { cita ->
+            // Filtrar las citas para mostrar solo las de mañana en adelante
+            val today = LocalDate.now()
+            val citasFiltradas = citasList.filter { cita ->
+                val citaFecha = LocalDate.parse(cita.fecha, DateTimeFormatter.ofPattern("yyyy-MM-dd")) // Ajusta el formato según tu fecha
+                citaFecha.isAfter(today)
+            }
+
+            // Actualiza la interfaz con los datos filtrados
+            val newAdapter = CitaAdapter(citasFiltradas, { cita ->
                 cancelarCita(cita)
             }, requireContext())  // Aquí pasamos el contexto
 
             recyclerView.adapter = newAdapter
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-            // Oculta la capa de fondo y el cuadro de progreso
+            // Ocultar la capa de fondo y el cuadro de progreso
             fondoTransparente.visibility = View.GONE
             cuadroProgress.visibility = View.GONE
             progressBar.visibility = View.GONE
 
-            // Vuelve a habilitar la interacción
+            // Habilitar la interacción
             recyclerView.isEnabled = true
             swipeRefreshLayout.isEnabled = true
             binding.btnCrearCita.isEnabled = true
 
             // Detiene la animación del SwipeRefreshLayout
             swipeRefreshLayout.isRefreshing = false
+
+            // Habilitar el menú
+            (activity as? MainActivity)?.enableMenu()
         }
     }
 

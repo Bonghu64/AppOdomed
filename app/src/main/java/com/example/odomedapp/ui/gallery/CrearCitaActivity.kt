@@ -59,10 +59,31 @@ class CrearCitaActivity : AppCompatActivity() {
         binding.guardarButton.setOnClickListener {
             guardarCita()
         }
+
+        // Configurar botón de volver
+        binding.volverButton.setOnClickListener {
+            onBackPressed()  // Este método se llama cuando el botón de volver es presionado
+        }
     }
 
     private fun showDatePicker() {
         val calendar = Calendar.getInstance()
+
+        // Establecer la fecha mínima como un día después de la fecha actual
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+        val minDate = calendar.timeInMillis
+
+        // Guardamos la fecha mínima
+        val minCalendar = Calendar.getInstance()
+        minCalendar.add(Calendar.DAY_OF_MONTH, 1) // Día siguiente
+        val minYear = minCalendar.get(Calendar.YEAR)
+        val minMonth = minCalendar.get(Calendar.MONTH)
+        val minDay = minCalendar.get(Calendar.DAY_OF_MONTH)
+
+        // Establecer la fecha máxima como dos semanas después de la fecha actual
+        calendar.add(Calendar.DAY_OF_MONTH, 14)  // Sumar 14 días
+        val maxDate = calendar.timeInMillis
+
         val datePicker = DatePickerDialog(
             this,
             { _, year, month, dayOfMonth ->
@@ -70,12 +91,23 @@ class CrearCitaActivity : AppCompatActivity() {
                 binding.fechaTextView.text = selectedDate
                 loadOdontologos() // Cargar odontólogos para la fecha seleccionada
             },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
+            minYear,  // Usamos el año de la fecha mínima
+            minMonth, // Usamos el mes de la fecha mínima
+            minDay    // Usamos el día de la fecha mínima
         )
+
+        // Establecer la fecha mínima y máxima en el DatePicker
+        val datePickerDialog = datePicker.datePicker
+        datePickerDialog.minDate = minDate
+        datePickerDialog.maxDate = maxDate
+
+        // Mostrar el DatePicker
         datePicker.show()
     }
+
+
+
+
 
     private fun loadOdontologos() {
         // Mostrar el ProgressBar
@@ -135,7 +167,7 @@ class CrearCitaActivity : AppCompatActivity() {
         // Deshabilitar interacción con el spinner de odontólogos, fecha y botón guardar
         binding.odontologoSpinner.isEnabled = false
         binding.fechaTextView.isEnabled = false
-        binding.guardarButton.isEnabled = false // Deshabilitar el botón guardar
+        binding.guardarButton.isEnabled = false
 
         // Ejecutar la operación de base de datos en una corutina
         lifecycleScope.launch {
@@ -152,12 +184,16 @@ class CrearCitaActivity : AppCompatActivity() {
                         }
                     }
                 }
-                Log.d("Horarios", "Horarios: ${horariosList.map { it.idHorario }}")
+
+                Log.d("Horarios", "Horarios cargados: ${horariosList.map { it.idHorario }}")
 
                 if (horariosList.isNotEmpty()) {
-                    // Configurar el adaptador personalizado para horarios
+                    // Configurar el adaptador con los horarios cargados
                     val adapter = HorarioAdapter(this@CrearCitaActivity, horariosList)
                     binding.horarioSpinner.adapter = adapter
+
+                    // Aplicar el filtro en el adaptador
+                    adapter.filterByDateAndTime(date)
 
                     // Mostrar el spinner de horarios
                     binding.horarioSpinner.visibility = View.VISIBLE
@@ -165,16 +201,18 @@ class CrearCitaActivity : AppCompatActivity() {
                     Toast.makeText(this@CrearCitaActivity, "No hay horarios disponibles", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
+                Log.e("LoadHorariosError", "Error al cargar los horarios", e)
                 Toast.makeText(this@CrearCitaActivity, "Error al cargar horarios", Toast.LENGTH_SHORT).show()
             } finally {
                 // Ocultar el ProgressBar y habilitar la interacción nuevamente
                 binding.progressBar.visibility = View.GONE
                 binding.odontologoSpinner.isEnabled = true
                 binding.fechaTextView.isEnabled = true
-                binding.guardarButton.isEnabled = true // Habilitar el botón guardar
+                binding.guardarButton.isEnabled = true
             }
         }
     }
+
 
 
 
