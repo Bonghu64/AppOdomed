@@ -6,10 +6,8 @@ import android.app.DatePickerDialog
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
-import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -28,6 +26,7 @@ class CrearCitaActivity : AppCompatActivity() {
     private val dbHelper = DatabaseHelper(this)
     private var selectedDate: String? = null
     private var selectedOdontologo: Odontologo? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +48,8 @@ class CrearCitaActivity : AppCompatActivity() {
         // Inicialmente ocultar odontólogo y horario
         binding.odontologoSpinner.visibility = View.GONE
         binding.horarioSpinner.visibility = View.GONE
+        binding.cardHora.visibility = View.GONE
+        binding.cardOdon.visibility = View.GONE
 
         // Configurar selección de fecha
         binding.fechaTextView.setOnClickListener {
@@ -116,7 +117,8 @@ class CrearCitaActivity : AppCompatActivity() {
         // Deshabilitar la interacción con los Spinners, fecha, y botón guardar
         binding.odontologoSpinner.isEnabled = false
         binding.fechaTextView.isEnabled = false
-        binding.guardarButton.isEnabled = false // Deshabilitar el botón guardar
+        binding.guardarButton.isEnabled = false
+        binding.volverButton.isEnabled = false// Deshabilitar el botón guardar
 
         // Ejecutar la operación de base de datos en una corutina
         lifecycleScope.launch {
@@ -133,11 +135,13 @@ class CrearCitaActivity : AppCompatActivity() {
 
                     // Mostrar el spinner de odontólogos
                     binding.odontologoSpinner.visibility = View.VISIBLE
+                    binding.cardOdon.visibility = View.VISIBLE
                     binding.odontologoSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                             // Asignar el odontólogo seleccionado según su posición en la lista
                             selectedOdontologo = odontologosList[position]
                             loadHorarios(selectedDate!!, selectedOdontologo!!.idOdontologo)
+
                         }
 
                         override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -156,6 +160,7 @@ class CrearCitaActivity : AppCompatActivity() {
                 binding.odontologoSpinner.isEnabled = true
                 binding.fechaTextView.isEnabled = true
                 binding.guardarButton.isEnabled = true // Habilitar el botón guardar
+                binding.volverButton.isEnabled = true
             }
         }
     }
@@ -168,6 +173,7 @@ class CrearCitaActivity : AppCompatActivity() {
         binding.odontologoSpinner.isEnabled = false
         binding.fechaTextView.isEnabled = false
         binding.guardarButton.isEnabled = false
+        binding.volverButton.isEnabled = false
 
         // Ejecutar la operación de base de datos en una corutina
         lifecycleScope.launch {
@@ -188,18 +194,17 @@ class CrearCitaActivity : AppCompatActivity() {
                 Log.d("Horarios", "Horarios cargados: ${horariosList.map { it.idHorario }}")
 
                 if (horariosList.isNotEmpty()) {
-                    // Configurar el adaptador con los horarios cargados
                     val adapter = HorarioAdapter(this@CrearCitaActivity, horariosList)
                     binding.horarioSpinner.adapter = adapter
 
-                    // Aplicar el filtro en el adaptador
-                    adapter.filterByDateAndTime(date)
-
-                    // Mostrar el spinner de horarios
                     binding.horarioSpinner.visibility = View.VISIBLE
+                    binding.cardHora.visibility = View.VISIBLE
                 } else {
                     Toast.makeText(this@CrearCitaActivity, "No hay horarios disponibles", Toast.LENGTH_SHORT).show()
+                    binding.horarioSpinner.visibility = View.GONE
+                    binding.cardHora.visibility = View.GONE
                 }
+
             } catch (e: Exception) {
                 Log.e("LoadHorariosError", "Error al cargar los horarios", e)
                 Toast.makeText(this@CrearCitaActivity, "Error al cargar horarios", Toast.LENGTH_SHORT).show()
@@ -209,6 +214,8 @@ class CrearCitaActivity : AppCompatActivity() {
                 binding.odontologoSpinner.isEnabled = true
                 binding.fechaTextView.isEnabled = true
                 binding.guardarButton.isEnabled = true
+                binding.volverButton.isEnabled = true
+
             }
         }
     }
@@ -220,18 +227,32 @@ class CrearCitaActivity : AppCompatActivity() {
 
 
     private fun guardarCita() {
-        // Verificar si hay un odontólogo seleccionado
+        if (selectedDate == null) {
+            Toast.makeText(this, "Debe elegir una fecha válida", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if (selectedOdontologo == null) {
             Toast.makeText(this, "Debe elegir un odontólogo válido", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Verificar si hay un horario seleccionado
         val horarioSeleccionado = binding.horarioSpinner.selectedItem as? Horario
         if (horarioSeleccionado == null) {
             Toast.makeText(this, "Debe elegir un horario válido", Toast.LENGTH_SHORT).show()
             return
         }
+        if (binding.horarioSpinner.visibility != View.VISIBLE || binding.horarioSpinner.adapter == null) {
+            Toast.makeText(this, "Debe elegir un horario válido", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Bloquear UI temporalmente mientras se guarda la cita
+        binding.odontologoSpinner.isEnabled = false
+        binding.fechaTextView.isEnabled = false
+        binding.guardarButton.isEnabled = false
+        binding.horarioSpinner.isEnabled = false
+        binding.volverButton.isEnabled = false
 
         // Obtener el ID del usuario logueado (paciente)
         val userId = SessionManager.getUser()?.idUsuario ?: return
@@ -242,26 +263,35 @@ class CrearCitaActivity : AppCompatActivity() {
                 val success = dbHelper.updateCita(
                     horarioSeleccionado.idHorario,
                     selectedOdontologo!!.idOdontologo,
-                    userId
+                    userId,
+                    selectedDate!!
                 )
-                Log.d("GuardarCita", "idHorario: ${horarioSeleccionado.idHorario}, userId: $userId, odontologo: ${selectedOdontologo!!.idOdontologo}")
                 withContext(Dispatchers.Main) {
                     if (success) {
                         Toast.makeText(this@CrearCitaActivity, "Cita programada exitosamente", Toast.LENGTH_SHORT).show()
                         finish()
                     } else {
                         Toast.makeText(this@CrearCitaActivity, "Error al programar la cita", Toast.LENGTH_SHORT).show()
-
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@CrearCitaActivity, "Error al programar la cita", Toast.LENGTH_SHORT).show()
                 }
-                Log.e("asas","a", e)
+                Log.e("GuardarCitaError", "Error al guardar cita", e)
+            } finally {
+                // Restaurar interacción con la UI
+                withContext(Dispatchers.Main) {
+                    binding.odontologoSpinner.isEnabled = true
+                    binding.fechaTextView.isEnabled = true
+                    binding.guardarButton.isEnabled = true
+                    binding.horarioSpinner.isEnabled = true
+                    binding.volverButton.isEnabled = true
+                }
             }
         }
     }
+
 
 
 }

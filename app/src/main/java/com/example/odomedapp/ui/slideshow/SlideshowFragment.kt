@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
@@ -33,6 +34,7 @@ class SlideshowFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var fondoTransparente: View
     private lateinit var cuadroProgress: LinearLayout
+    private lateinit var btonCrear: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,6 +48,9 @@ class SlideshowFragment : Fragment() {
         progressBar = binding.progressBar
         fondoTransparente = binding.fondoTransparente
         cuadroProgress = binding.cuadroProgress
+        btonCrear = binding.btnCrearCita
+
+        btonCrear.visibility = View.GONE
 
         // Configurar SwipeRefreshLayout para actualizar datos
         swipeRefreshLayout.setOnRefreshListener {

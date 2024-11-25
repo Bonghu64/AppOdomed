@@ -7,10 +7,6 @@ import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.odomedapp.data.SessionManager
@@ -18,6 +14,7 @@ import com.example.odomedapp.databinding.ActivityMainBinding
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.widget.TextView
+import androidx.navigation.ui.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -65,6 +62,25 @@ class MainActivity : AppCompatActivity() {
             textViewName.text = "${user.nombres} ${user.apellidos}"
             textViewEmail.text = user.email
         }
+
+// Configurar las acciones para las demás opciones del menú
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_logout -> {
+                    logoutUser() // Manejar manualmente el logout
+                    true
+                }
+                else -> {
+                    // Para otros destinos, permitir que NavigationUI lo maneje
+                    val handled = NavigationUI.onNavDestinationSelected(menuItem, navController)
+                    if (handled) {
+                        binding.drawerLayout.closeDrawers()
+                    }
+                    handled
+                }
+            }
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -77,15 +93,7 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.nav_logout -> {
-                logoutUser()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+
     private fun logoutUser() {
         val sessionManager = SessionManager // Asegúrate de usar tu clase SessionManager correctamente
         val user = sessionManager.getUser()

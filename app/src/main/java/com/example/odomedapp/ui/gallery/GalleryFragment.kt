@@ -1,5 +1,6 @@
 package com.example.odomedapp.ui.gallery
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -139,18 +140,27 @@ class GalleryFragment : Fragment() {
     private fun cancelarCita(cita: Cita) {
         val dialog = ConfirmCancelDialogFragment()
 
+        // Listener para confirmar la cancelación
         dialog.onConfirmListener = {
-            // Deshabilitar los botones en el diálogo de confirmación inmediatamente al confirmar
             dialog.binding?.btnConfirmar?.isEnabled = false
             dialog.binding?.btnCancelar?.isEnabled = false
-            dialog.binding?.btnCancelar?.isEnabled = false
-
-            // Proceder con la cancelación de la cita
             cancelAppointment(cita)
+        }
+
+        // Listener para cuando el diálogo es cerrado sin confirmar
+        dialog.onDismissListener = {
+            // Volver a habilitar el botón cancelar en el RecyclerView
+            val adapter = recyclerView.adapter as? CitaAdapter
+            val viewHolder = recyclerView.findViewHolderForAdapterPosition(
+                adapter?.citasList?.indexOf(cita) ?: -1
+            ) as? CitaAdapter.CitaViewHolder
+
+            viewHolder?.btnCancelar?.isEnabled = true
         }
 
         dialog.show(requireActivity().supportFragmentManager, "ConfirmCancelDialog")
     }
+
 
     private fun cancelAppointment(cita: Cita) {
         // Mostrar el ProgressBar y bloquear la interacción
@@ -226,6 +236,7 @@ class GalleryFragment : Fragment() {
 }
 class ConfirmCancelDialogFragment : DialogFragment() {
     var onConfirmListener: (() -> Unit)? = null
+    var onDismissListener: (() -> Unit)? = null
     var binding: DialogConfirmCancelBinding? = null
 
     override fun onCreateView(
@@ -235,11 +246,11 @@ class ConfirmCancelDialogFragment : DialogFragment() {
         binding = DialogConfirmCancelBinding.inflate(inflater, container, false)
 
         binding?.btnCancelar?.setOnClickListener {
-            dismiss()  // Cierra el diálogo si se presiona Cancelar
+            dismiss() // Cierra el diálogo si se presiona Cancelar
         }
 
         binding?.btnConfirmar?.setOnClickListener {
-            onConfirmListener?.invoke()  // Llama al listener de confirmación
+            onConfirmListener?.invoke() // Llama al listener de confirmación
             dismiss()
         }
 
@@ -250,7 +261,13 @@ class ConfirmCancelDialogFragment : DialogFragment() {
         super.onDestroyView()
         binding = null
     }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        onDismissListener?.invoke() // Llama al listener de cierre
+    }
 }
+
 
 
 

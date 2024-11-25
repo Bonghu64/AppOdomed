@@ -1,12 +1,9 @@
 package com.example.odomedapp
 
 import android.content.Context
-import android.database.Cursor
 import android.os.StrictMode
 import android.util.Log
 import java.sql.*
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
 import com.example.odomedapp.data.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -244,15 +241,16 @@ class DatabaseHelper(requireContext: Context) {
         connection.close()
         return citas
     }
-    fun updateCita(idHorario: Int, idOdontologo: Int, idPaciente: Int): Boolean {
+    fun updateCita(idHorario: Int, idOdontologo: Int, idPaciente: Int, fecha: String): Boolean {
         try {
             val connection = DriverManager.getConnection(url, userDB, passwordDB)
             val statement = connection.prepareStatement(
-                "UPDATE citas SET id_paciente = ? WHERE id_horario = ? AND id_odontologo = ?"
+                "UPDATE citas SET id_paciente = ? WHERE id_horario = ? AND id_odontologo = ? AND fecha = ?"
             )
             statement.setInt(1, idPaciente)
             statement.setInt(2, idHorario)
             statement.setInt(3, idOdontologo)
+            statement.setString(4, fecha) // Asegúrate de que "fecha" sea del tipo correcto en tu base de datos
 
             val rowsUpdated = statement.executeUpdate()
             Log.d("UpdateCita", "Filas actualizadas: $rowsUpdated")
@@ -262,10 +260,11 @@ class DatabaseHelper(requireContext: Context) {
 
             return rowsUpdated > 0
         } catch (e: SQLException) {
-            e.printStackTrace()  // Para imprimir el error en el log
+            e.printStackTrace()
             return false
         }
     }
+
     fun getHorarioById(idHorario: Int?): Horario? {
         if (idHorario == null) return null
 

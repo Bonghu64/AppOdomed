@@ -44,10 +44,12 @@ class CitaAdapter(
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val fecha = dateFormat.parse(cita.fecha)
 
-        val fechaFormateada = SimpleDateFormat("dd-MMMM-yyyy", Locale("es", "ES")).format(fecha)
+        val fechaFormateada = SimpleDateFormat("dd 'de' MMMM 'de' yyyy", Locale("es", "ES")).format(fecha)
+        val fechaConMayuscula = fechaFormateada.replaceFirstChar { it.uppercase() }
+
 
         // Asignar la fecha formateada al TextView
-        holder.fecha.text = fechaFormateada
+        holder.fecha.text = fechaConMayuscula
 
         holder.estado.text = cita.estadoCita
 
